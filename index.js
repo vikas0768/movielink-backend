@@ -1,65 +1,92 @@
-
 const express = require("express");
 const admin = require("firebase-admin");
 const bodyParser = require("body-parser");
-const path = require("path");
-
-// ✅ Firebase service account key load karo
 const serviceAccount = require("./serviceAccountKey.json");
 
-// ✅ Firebase initialize
+// Firebase init
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
 const db = admin.firestore();
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ Root Route (to check if backend is live)
+// Root check
 app.get("/", (req, res) => {
-  res.send("🚀 MovieLink Backend is running successfully!");
+  res.send("Movielink backend running successfully!");
 });
 
 // ✅ Zeydoo Callback Endpoint
 app.get("/zeydoo-callback", async (req, res) => {
   try {
-    const { subid, payout, txid, offer_id } = req.query;
+    // Zeydoo se aane wale params
+    const { var: userUid, ymid: clickId, payout, status } = req.query;
 
-    // Check if required data is present
-    if (!subid || !payout) {
-      return res.status(400).send("❌ Missing required parameters (subid or payout)");
+    if (!userUid || !clickId) {
+      return res.status(400).send("❌ Missing userUid or clickId");
     }
 
-    console.log(`Received Callback: SUBID=${subid}, PAYOUT=${payout}, TXID=${txid}, OFFER_ID=${offer_id}`);
+    console.log("Zeydoo Callback Received:", req.query);
 
-    // Firestore me user ko search karo
-    const userRef = db.collection("users").doc(subid);
+    // Firestore me user document find karo
+    const userRef = db.collection("users").doc(userUid);
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
-      console.error(`User with ID ${subid} not found in Firestore`);
       return res.status(404).send("❌ User not found in Firestore");
     }
 
-    // ✅ Offer coins ko update karo
-    await userRef.update({
-      offerCoins: admin.firestore.FieldValue.increment(parseFloat(payout)),
-    });
+    // Offer history document update
+    const offerRef = userRef.collection("offer_history").doc(clickId);
 
-    console.log(`✅ Offer completed for User: ${subid} | Coins Added: ${payout}`);
-    return res.status(200).send("✅ Success");
+    if (status === "approved") {
+      // ✅ Offer completed successfully
+      await offerRef.update({
+        status: "Completed",
+        completedAt: Date.now(),
+      });
+
+      // Coins user wallet me add karo
+      await userRef.update({
+        offerCoins: admin.firestore.FieldValue.increment(parseFloat(payout)),
+      });
+
+      console.log(`✅ Offer Completed! UID: ${userUid}, Coins: ${payout}`);
+      return res.status(200).send("✅ Offer marked as Completed");
+
+    } else if (status === "rejected") {
+      // ❌ Offer failed
+      await offerRef.update({
+        status: "Failed",
+        completedAt: Date.now(),
+      });
+
+      console.log(`❌ Offer Failed! UID: ${userUid}`);
+      return res.status(200).send("❌ Offer marked as Failed");
+
+    } else {
+      // Agar status na mile to default Complete
+      await offerRef.update({
+        status: "Completed",
+        completedAt: Date.now(),
+      });
+
+      await userRef.update({
+        offerCoins: admin.firestore.FieldValue.increment(parseFloat(payout || 0)),
+      });
+
+      return res.status(200).send("✅ Default Completed");
+    }
   } catch (error) {
-    console.error("❌ Error processing callback:", error);
-    return res.status(500).send("❌ Internal Server Error");
+    console.error("Error processing callback:", error);
+    return res.status(500).send("❌ Server error");
   }
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
