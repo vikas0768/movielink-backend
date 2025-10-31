@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>About Movielink App</title> 
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(-45deg, #0a0a23, #1e1e50, #009ffd, #00ff9d);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      text-align: center;
+      padding: 25px;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      padding: 35px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.3);
+      max-width: 750px;
+      width: 100%;
+      animation: fadeIn 1.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2.4em;
+      color: #00f0ff;
+      text-shadow: 0 0 15px #00f0ff;
+      margin-bottom: 10px;
+    }
+
+    #typewriter {
+      color: #ffd700;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
+
+    h2 {
+      color: #00ff9d;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      line-height: 1.8;
+      font-size: 1.05em;
+      margin-bottom: 10px;
+      color: #f0f0f0;
+    }
+
+    .highlight {
+      color: #ffd700;
+      font-weight: 600;
+    }
+
+    .contact {
+      margin-top: 20px;
+    }
+
+    .contact a {
+      color: #00f0ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      background: #00ff9d;
+      color: #000;
+      padding: 10px 25px;
+      border-radius: 25px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #ffd700;
+      transform: scale(1.05);
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2em; }
+      p { font-size: 0.95em; }
+    }
+  </style> 
+ </head> 
+ <body> 
+  <div class="container"> 
+   <h1>🎬 Movielink App</h1> 
+   <div id="typewriter"></div> 
+   <p> <span class="highlight">Movielink</span> is your one-stop destination for <b>Hollywood</b>, <b>Bollywood</b>, <b>South Indian</b>, and <b>K-Drama</b> movie links — all absolutely <span class="highlight">free!</span> </p> 
+   <h2>💰 Earn While You Enjoy</h2> 
+   <p> Movielink is not just an entertainment app — it’s an <span class="highlight">earning platform</span> too! Users can collect coins by using the app and watching movie links. No deposits or investments needed — it’s <b>100% free to earn!</b> </p> 
+   <h2>🔐 Privacy Policy</h2> 
+   <p> Your privacy is our priority. Movielink does not store personal data or payment details. We only collect minimal, anonymous usage data to improve your experience. We never share user data with third parties. By using Movielink, you agree to our privacy and fair-use policy. </p> 
+   <h2>📞 Contact Us</h2> 
+   <p>Email: <a href="mailto:parsiyavikky@gmail.com">parsiyavikky@gmail.com</a></p> 
+   <p>Phone: <a href="tel:8949034465">8949034465</a></p> <a href="#" class="btn">Download Movielink Now</a> 
+   <div class="footer"> 
+    <p>© 2025 Movielink App — Watch. Earn. Enjoy.</p> 
+   </div> 
+  </div> 
+  <script>
+    const textArray = [
+      "Watch Movies. Earn Rewards. Enjoy for Free!",
+      "Hollywood | Bollywood | South | K-Drama",
+      "No Deposit • Just Watch • Earn Coins"
+    ];
+
+    let i = 0;
+    let j = 0;
+    let currentText = "";
+    let isDeleting = false;
+    const typewriter = document.getElementById("typewriter");
+
+    function type() {
+      currentText = textArray[i];
+      if (isDeleting) {
+        typewriter.textContent = currentText.substring(0, j--);
+      } else {
+        typewriter.textContent = currentText.substring(0, j++);
+      }
+
+      if (!isDeleting && j === currentText.length + 1) {
+        isDeleting = true;
+        setTimeout(type, 1500);
+        return;
+      } else if (isDeleting && j === 0) {
+        isDeleting = false;
+        i = (i + 1) % textArray.length;
+      }
+
+      setTimeout(type, isDeleting ? 50 : 100);
+    }
+
+    type();
+  </script> 
+ </body>
+</html>
